@@ -2,9 +2,10 @@
 
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import { TableKit } from "@tiptap/extension-table";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Heading2, Heading3, ImageIcon, Italic, Link2, List, ListOrdered, Minus, Quote, Redo2, Undo2 } from "lucide-react";
+import { BetweenHorizontalEnd, BetweenVerticalEnd, Bold, Heading2, Heading3, ImageIcon, Italic, Link2, List, ListOrdered, Minus, Quote, Redo2, Table, TableColumnsSplit, TableRowsSplit, Trash2, Undo2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { MediaPicker } from "./MediaPicker";
 
@@ -42,6 +43,16 @@ function Toolbar({ editor, onImage, onLink }: { editor: Editor; onImage: () => v
         <Link2 className={icon} />
       </Tool>
       <Tool label="Изображение" onClick={onImage}><ImageIcon className={icon} /></Tool>
+      <Tool label="Вставить таблицу" active={editor.isActive("table")} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}><Table className={icon} /></Tool>
+      {editor.isActive("table") && (
+        <>
+          <Tool label="Добавить строку" onClick={() => editor.chain().focus().addRowAfter().run()}><BetweenHorizontalEnd className={icon} /></Tool>
+          <Tool label="Добавить столбец" onClick={() => editor.chain().focus().addColumnAfter().run()}><BetweenVerticalEnd className={icon} /></Tool>
+          <Tool label="Удалить строку" onClick={() => editor.chain().focus().deleteRow().run()}><TableRowsSplit className={icon} /></Tool>
+          <Tool label="Удалить столбец" onClick={() => editor.chain().focus().deleteColumn().run()}><TableColumnsSplit className={icon} /></Tool>
+          <Tool label="Удалить таблицу" onClick={() => editor.chain().focus().deleteTable().run()}><Trash2 className={icon} /></Tool>
+        </>
+      )}
       <span className="mx-1 w-px bg-line" />
       <Tool label="Отменить" onClick={() => editor.chain().focus().undo().run()}><Undo2 className={icon} /></Tool>
       <Tool label="Повторить" onClick={() => editor.chain().focus().redo().run()}><Redo2 className={icon} /></Tool>
@@ -57,7 +68,7 @@ export function RichEditor({ name, defaultValue, label }: { name: string; defaul
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit.configure({ link: false, heading: { levels: [2, 3, 4] } }), Link.configure({ openOnClick: false }), Image],
+    extensions: [StarterKit.configure({ link: false, heading: { levels: [2, 3, 4] } }), Link.configure({ openOnClick: false }), Image, TableKit.configure({ table: { resizable: false } })],
     content: defaultValue,
     editorProps: {
       attributes: {

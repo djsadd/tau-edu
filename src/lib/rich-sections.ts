@@ -26,7 +26,7 @@ function groupCards(html: string) {
 function decorate(html: string) {
   return html
     .replace(/<table[\s\S]*?<\/table>/g, (table) => `<div class="rich-table">${table}</div>`)
-    .replace(/(?:<p>\s*<img [^>]*>\s*<\/p>\s*){2,}/g, (run) => `<div class="rich-gallery">${run.replace(/<\/?p>/g, "")}</div>`)
+    .replace(/(?:(?:<p>\s*)?<img [^>]*>(?:\s*<\/p>)?\s*){2,}/g, (run) => `<div class="rich-gallery">${run.replace(/<\/?p>/g, "")}</div>`)
     .replace(/<img /g, '<img loading="lazy" ');
 }
 

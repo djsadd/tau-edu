@@ -126,5 +126,5 @@
   .rich-intro ul { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
   .rich-intro ul > li { padding: 1.1rem 1.25rem; border: 1px solid var(--color-line); border-top: 3px solid var(--color-gold); background: var(--color-burgundy-50); font-size: 0.9375rem; line-height: 1.5; color: var(--color-muted); }
   .rich-intro ul > li::before { content: none; }
-  .rich-intro ul > li > strong:first-child { display: block; margin-bottom: 0.25rem; font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.25; color: var(--color-burgundy-800); }
+  .rich-intro ul > li > strong:first-child, .rich-intro ul > li > p > strong:first-child { display: block; margin-bottom: 0.25rem; font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.25; color: var(--color-burgundy-800); }
 }
