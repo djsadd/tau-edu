@@ -51,7 +51,7 @@ async function seedContent() {
       heroImageId: null,
       stat1Value: "4", stat1Label: l("факультет", "факультета", "faculties"),
       stat2Value: "12", stat2Label: l("білім беру бағдарламасы", "образовательных программ", "degree programmes"),
-      stat3Value: "3", stat3Label: l("оқу деңгейі", "уровня обучения", "levels of study"),
+      stat3Value: "4", stat3Label: l("оқу деңгейі", "уровня обучения", "levels of study"),
       stat4Value: "3", stat4Label: l("оқыту тілі", "языка обучения", "languages of instruction"),
       about: l(
         "Университет студенттерге сапалы білім, ғылыми зерттеулерге қатысу мүмкіндігін және кәсіби дамуға қолдау көрсетеді. Біз оқытушылар мен студенттерді бір академиялық қауымдастыққа біріктіреміз.",
@@ -73,7 +73,7 @@ async function seedContent() {
   });
 
   /* ----- Степени ----- */
-  const [bachelor, master, doctorate] = await db.insert(degrees).values([
+  const [bachelor, master, doctorate, mba] = await db.insert(degrees).values([
     {
       slug: "bachelor", sortOrder: 1,
       name: l("Бакалавриат", "Бакалавриат", "Bachelor's degree"),
@@ -97,6 +97,13 @@ async function seedContent() {
       duration: l("3 жыл", "3 года", "3 years"),
       summary: l("Дербес ғылыми зерттеулерге бағытталған ең жоғары саты.", "Высшая ступень, ориентированная на самостоятельные научные исследования.", "The highest stage of study, focused on independent research."),
       content: p("Докторантура ғылыми жетекшімен бірге зерттеу жүргізіп, диссертация қорғауды қамтиды.", "Докторантура включает исследования под руководством научного консультанта и защиту диссертации.", "Doctoral study involves research with an academic supervisor and the defence of a dissertation."),
+    },
+    {
+      slug: "mba", sortOrder: 4,
+      name: l("MBA", "MBA", "MBA"),
+      awarded: l("Іскерлік әкімшілендіру магистрі (MBA)", "Магистр делового администрирования (MBA)", "Master of Business Administration (MBA)"),
+      summary: l("Басшылар мен кәсіпкерлерге арналған бизнес-білім.", "Бизнес-образование для руководителей и предпринимателей.", "Business education for managers and entrepreneurs."),
+      content: p("Бұл бетке MBA бағдарламасының сипаттамасын әкімшілік панельден қосыңыз.", "Добавьте на эту страницу описание программы MBA через панель управления.", "Add a description of the MBA programme to this page from the admin panel."),
     },
   ]).returning();
 
@@ -379,15 +386,15 @@ async function seedContent() {
   ]);
 
   /* ----- Страницы ----- */
-  const [pAbout, pHistory, pContacts, pAdmission] = await db.insert(pages).values([
+  const [pAbout, , pContacts, pAdmission] = await db.insert(pages).values([
     {
       path: "about",
       title: l("Университет туралы", "Об университете", "About the university"),
       summary: l("Миссиямыз, құндылықтарымыз және қауымдастығымыз.", "Наша миссия, ценности и сообщество.", "Our mission, values and community."),
       content: {
-        kk: "<h2>Миссиямыз</h2><p>Сапалы білім мен ғылым арқылы адамдар мен қоғамның дамуына үлес қосу.</p><h2>Құндылықтарымыз</h2><ul><li>Академиялық адалдық</li><li>Ашықтық пен құрмет</li><li>Даму мен жаңашылдық</li></ul>",
-        ru: "<h2>Наша миссия</h2><p>Вносить вклад в развитие людей и общества через качественное образование и науку.</p><h2>Наши ценности</h2><ul><li>Академическая честность</li><li>Открытость и уважение</li><li>Развитие и новаторство</li></ul>",
-        en: "<h2>Our mission</h2><p>To contribute to the development of people and society through quality education and research.</p><h2>Our values</h2><ul><li>Academic integrity</li><li>Openness and respect</li><li>Growth and innovation</li></ul>",
+        kk: "<h2>Миссиямыз</h2><p>Сапалы білім мен ғылым арқылы адамдар мен қоғамның дамуына үлес қосу.</p><h2>Құндылықтарымыз</h2><ul><li>Академиялық адалдық</li><li>Ашықтық пен құрмет</li><li>Даму мен жаңашылдық</li></ul><h2>Толығырақ</h2><ul><li><a href=\"/kk/about/history\">Тарих</a></li><li><a href=\"/kk/about/councils\">Кеңестер</a></li><li><a href=\"/kk/about/sustainability\">Тұрақты даму</a></li></ul>",
+        ru: "<h2>Наша миссия</h2><p>Вносить вклад в развитие людей и общества через качественное образование и науку.</p><h2>Наши ценности</h2><ul><li>Академическая честность</li><li>Открытость и уважение</li><li>Развитие и новаторство</li></ul><h2>Подробнее</h2><ul><li><a href=\"/ru/about/history\">История</a></li><li><a href=\"/ru/about/councils\">Советы</a></li><li><a href=\"/ru/about/sustainability\">Устойчивое развитие</a></li></ul>",
+        en: "<h2>Our mission</h2><p>To contribute to the development of people and society through quality education and research.</p><h2>Our values</h2><ul><li>Academic integrity</li><li>Openness and respect</li><li>Growth and innovation</li></ul><h2>Learn more</h2><ul><li><a href=\"/en/about/history\">History</a></li><li><a href=\"/en/about/councils\">Councils</a></li><li><a href=\"/en/about/sustainability\">Sustainable development</a></li></ul>",
       },
     },
     {
@@ -418,13 +425,42 @@ async function seedContent() {
     },
   ]).returning();
 
+  /* Сводные страницы: содержимое переносится со старого сайта через админку, адреса старых страниц — в lib/legacy-redirects.ts */
+  const stubs = await db.insert(pages).values(([
+    ["admission/tuition-grants", l("Оқу ақысы және гранттар", "Стоимость и гранты", "Tuition and grants")],
+    ["admission/why-tau", l("Неге TAU", "Почему TAU", "Why TAU")],
+    ["admission/dormitory", l("Жатақхана", "Общежитие", "Dormitory")],
+    ["admission/contacts", l("Қабылдау комиссиясының байланыстары", "Контакты приёмной комиссии", "Admissions office contacts")],
+    ["education/additional", l("Қосымша білім беру", "Дополнительное образование", "Continuing education")],
+    ["science/activity", l("Ғылыми қызмет", "Научная деятельность", "Research activity")],
+    ["science/centers", l("Орталықтар мен зертханалар", "Центры и лаборатории", "Centres and laboratories")],
+    ["science/publications", l("Басылымдар мен жарияланымдар", "Издания и публикации", "Journals and publications")],
+    ["science/young-scientists", l("Жас ғалымдарға", "Молодым учёным", "Young researchers")],
+    ["science/events", l("Ғылыми іс-шаралар", "Научные мероприятия", "Research events")],
+    ["innohub", l("TAU-InnoHub", "TAU-InnoHub", "TAU-InnoHub")],
+    ["students/calendar", l("Күнтізбе және кесте", "Календарь и расписание", "Calendar and timetable")],
+    ["students/handbook", l("Студент анықтамалығы", "Справочник студента", "Student handbook")],
+    ["students/library", l("Кітапхана", "Библиотека", "Library")],
+    ["students/campus", l("Кампус және қолдау", "Кампус и поддержка", "Campus and support")],
+    ["students/alumni", l("Түлектерге", "Выпускникам", "Alumni")],
+    ["about/councils", l("Кеңестер", "Советы", "Councils")],
+    ["about/sustainability", l("Тұрақты даму", "Устойчивое развитие", "Sustainable development")],
+    ["international", l("Халықаралық қызмет", "Международная деятельность", "International affairs")],
+    ["vacancies", l("Бос орындар", "Вакансии", "Vacancies")],
+    ["rector-blog", l("Ректор блогы", "Блог ректора", "Rector's blog")],
+    ["situation-center", l("Жағдаяттық орталық", "Ситуационный центр", "Situation centre")],
+  ] as const).map(([path, title]) => ({
+    path, title,
+    content: p("Бұл беттің мазмұнын әкімшілік панельден қосыңыз.", "Добавьте содержимое этой страницы через панель управления.", "Add the content of this page from the admin panel."),
+  }))).returning();
+
   /* ----- Меню ----- */
   let order = 0;
-  type Item = { kind: "GROUP" | "SECTION" | "PAGE"; label?: Localized; sectionKey?: string; pageId?: string; children?: Item[] };
+  type Item = { kind: "GROUP" | "SECTION" | "PAGE" | "URL"; label?: Localized; sectionKey?: string; pageId?: string; url?: string; openInNewTab?: boolean; children?: Item[] };
   const addMenu = async (location: "HEADER" | "FOOTER", items: Item[], parentId: string | null = null) => {
     for (const item of items) {
       const [row] = await db.insert(menuItems).values({
-        location, parentId, kind: item.kind, label: item.label ?? {}, sectionKey: item.sectionKey, pageId: item.pageId, sortOrder: ++order,
+        location, parentId, kind: item.kind, label: item.label ?? {}, sectionKey: item.sectionKey, pageId: item.pageId, url: item.url, openInNewTab: item.openInNewTab ?? false, sortOrder: ++order,
       }).returning();
       if (item.children) await addMenu(location, item.children, row.id);
     }
@@ -432,30 +468,87 @@ async function seedContent() {
   const section = (sectionKey: string, label?: Localized): Item => ({ kind: "SECTION", sectionKey, label });
   const page = (pageId: string): Item => ({ kind: "PAGE", pageId, label: undefined });
   const withTitle = (pageId: string, label: Localized): Item => ({ ...page(pageId), label });
+  const stub = (path: string): Item => {
+    const row = stubs.find((s) => s.path === path);
+    if (!row) throw new Error(`Нет страницы ${path}`);
+    return withTitle(row.id, row.title);
+  };
+  const link = (url: string, label: Localized): Item => ({ kind: "URL", url, label });
+  const service = (url: string, label: string): Item => ({ kind: "URL", url, label: l(label, label, label), openInNewTab: true });
 
   const university = l("Университет", "Университет", "University");
-  const education = l("Білім беру", "Образование", "Education");
+  const education = l("Оқыту", "Обучение", "Education");
+  const science = l("Ғылым", "Наука", "Research");
   const admission = l("Түсу", "Поступление", "Admissions");
   const students = l("Студенттерге", "Студентам", "Students");
+  const rules = l("Қабылдау ережелері", "Правила приёма", "Admission rules");
   await addMenu("HEADER", [
+    { kind: "GROUP", label: admission, children: [
+      withTitle(pAdmission.id, rules),
+      stub("admission/tuition-grants"),
+      stub("admission/why-tau"),
+      stub("admission/dormitory"),
+      stub("admission/contacts"),
+    ] },
+    { kind: "GROUP", label: education, children: [
+      link(`/degrees/${bachelor.slug}`, bachelor.name),
+      link(`/degrees/${master.slug}`, master.name),
+      link(`/degrees/${doctorate.slug}`, l("PhD докторантурасы", "Докторантура PhD", "PhD")),
+      link(`/degrees/${mba.slug}`, mba.name),
+      stub("education/additional"),
+      section("faculties", l("Жоғары мектептер мен кафедралар", "Высшие школы и кафедры", "Schools and departments")),
+      section("teachers"),
+    ] },
+    { kind: "GROUP", label: science, children: [
+      stub("science/activity"),
+      stub("science/centers"),
+      stub("science/publications"),
+      stub("science/young-scientists"),
+      stub("science/events"),
+      stub("innohub"),
+    ] },
+    { kind: "GROUP", label: students, children: [
+      service("https://platonus.tau-edu.kz/", "PLATONUS"),
+      stub("students/calendar"),
+      stub("students/handbook"),
+      stub("students/library"),
+      stub("students/campus"),
+      section("studentOrgs", l("Студенттік өмір", "Студенческая жизнь", "Student life")),
+      stub("students/alumni"),
+    ] },
+    { kind: "GROUP", label: university, children: [
+      withTitle(pAbout.id, pAbout.title),
+      section("leadership", l("Басшылық және кеңестер", "Руководство и советы", "Leadership and councils")),
+      section("offices", l("Құрылым", "Структура", "Structure")),
+      stub("international"),
+      section("documents", l("Құжаттар және аккредитация", "Документы и аккредитация", "Documents and accreditation")),
+      stub("vacancies"),
+      withTitle(pContacts.id, pContacts.title),
+    ] },
+    { kind: "GROUP", label: l("Жаңалықтар", "Новости", "News"), children: [
+      section("news"),
+      section("events", l("Іс-шаралар мен хабарландырулар", "События и объявления", "Events and announcements")),
+      stub("rector-blog"),
+    ] },
+  ]);
+  await addMenu("FOOTER", [
     { kind: "GROUP", label: university, children: [
       withTitle(pAbout.id, pAbout.title),
       section("leadership"),
-      section("offices"),
-      withTitle(pHistory.id, pHistory.title),
+      stub("about/councils"),
+      stub("about/sustainability"),
       section("documents"),
       withTitle(pContacts.id, pContacts.title),
     ] },
-    { kind: "GROUP", label: education, children: [section("faculties"), section("departments"), section("programs"), section("degrees"), section("teachers")] },
-    { kind: "GROUP", label: admission, children: [withTitle(pAdmission.id, pAdmission.title), section("programs"), section("apply", l("Өтінім беру", "Подать заявку", "Send a request"))] },
-    { kind: "GROUP", label: students, children: [section("studentOrgs"), section("events"), section("documents")] },
-    section("news"),
-    section("events"),
-  ]);
-  await addMenu("FOOTER", [
-    { kind: "GROUP", label: university, children: [withTitle(pAbout.id, pAbout.title), section("leadership"), section("offices"), section("documents")] },
-    { kind: "GROUP", label: education, children: [section("faculties"), section("departments"), section("programs"), section("teachers")] },
-    { kind: "GROUP", label: admission, children: [withTitle(pAdmission.id, pAdmission.title), section("apply"), section("news"), section("events")] },
+    { kind: "GROUP", label: admission, children: [withTitle(pAdmission.id, rules), section("programs"), stub("admission/tuition-grants"), section("apply")] },
+    { kind: "GROUP", label: l("Сервистер", "Сервисы", "Services"), children: [
+      service("https://digital.tau-edu.kz/", "DIGITAL TAU"),
+      service("https://digital.tau-edu.kz/ai-sana", "AI-SANA"),
+      service("https://mooc.tau-edu.kz/", "MOOC"),
+      service("https://platonus.tau-edu.kz/", "PLATONUS"),
+      service("https://lib.tau-edu.kz", "e-Library"),
+      stub("situation-center"),
+    ] },
   ]);
 
   /* ----- Файлы ----- */

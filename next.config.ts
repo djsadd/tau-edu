@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyRedirects } from "./src/lib/legacy-redirects";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -6,6 +7,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pg", "sanitize-html", "bcryptjs"],
   experimental: {
     serverActions: { bodySizeLimit: "2mb" },
+  },
+  async redirects() {
+    return legacyRedirects();
   },
   async headers() {
     return [
