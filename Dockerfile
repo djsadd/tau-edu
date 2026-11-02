@@ -23,7 +23,7 @@ EXPOSE 3000
 CMD ["node", "server.js"]
 
 FROM runtime AS migrate
-COPY --from=builder /app/dist/migrate.cjs /app/dist/seed.cjs ./
+COPY --from=builder /app/dist/migrate.cjs /app/dist/seed.cjs /app/dist/import-content.cjs ./
 COPY --from=builder /app/src/db/migrations ./migrations
 ENV MIGRATIONS_DIR=/app/migrations
 CMD ["sh", "-c", "node migrate.cjs && node seed.cjs"]

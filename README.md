@@ -28,6 +28,13 @@ docker compose down                  # остановить, данные сох
 docker compose down -v               # остановить и удалить базу и файлы
 ```
 
+Тексты раздела «Поступление» со старого сайта лежат в `src/db/content/admission.json`. Импорт перезаписывает страницы с этими адресами, поэтому правки этих страниц из панели будут заменены:
+
+```bash
+npm run content:fetch   # скачать файлы старого сайта в data/legacy-files
+docker compose run --rm -v "$PWD/data/legacy-files:/legacy:ro" -e LEGACY_FILES_DIR=/legacy migrate node import-content.cjs
+```
+
 ## Продакшен
 
 1. Выполните `./scripts/init-env.sh`. Задайте в `.env` настоящие `SITE_URL` и `ADMIN_EMAIL`.

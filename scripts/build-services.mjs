@@ -8,6 +8,7 @@ const entries = {
   admissions: "services/admissions/index.ts",
   migrate: "src/db/migrate.ts",
   seed: "src/db/seed.ts",
+  "import-content": "src/db/import-content.ts",
 };
 
 await build({
