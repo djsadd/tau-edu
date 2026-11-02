@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AdmissionPage } from "@/components/site/AdmissionPage";
 import { Cover } from "@/components/site/Cover";
 import { PageHero } from "@/components/site/PageHero";
 import { Prose } from "@/components/site/Prose";
 import { getDictionary } from "@/i18n";
+import { isAdmissionPath } from "@/lib/admission";
 import { getPage } from "@/lib/content";
 import { pageMeta, resolveLocale } from "@/lib/page";
 import { tr } from "@/lib/text";
@@ -21,8 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CustomPage({ params }: Props) {
   const locale = await resolveLocale(params);
   const dict = getDictionary(locale);
-  const page = await getPage((await params).slug.join("/"));
+  const path = (await params).slug.join("/");
+  const page = await getPage(path);
   if (!page) notFound();
+  if (isAdmissionPath(path)) return <AdmissionPage path={path} page={page} locale={locale} dict={dict} />;
   return (
     <>
       <PageHero title={tr(page.title, locale)} lead={tr(page.summary, locale)} crumbs={[{ label: dict.common.home, href: `/${locale}` }, { label: tr(page.title, locale) }]} />

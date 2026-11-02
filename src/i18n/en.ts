@@ -17,6 +17,15 @@ export const en: Dictionary = {
     apply: "Admissions",
     search: "Search",
   },
+  admission: {
+    sectionNav: "Admissions",
+    onThisPage: "On this page",
+    pathways: "Where are you applying",
+    pathwaysLead: "Requirements and documents depend on your previous education and the level you are applying for.",
+    questions: "Still have questions?",
+    questionsLead: "The admissions office will help you choose a programme and prepare your documents.",
+    contacts: "Contact the office",
+  },
   common: {
     unavailable: "This section is temporarily unavailable. Please try again in a few minutes.",
     apply: "Apply now",

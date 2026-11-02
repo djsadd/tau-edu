@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, count, desc, eq, gte, isNull, lt, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, isNull, lt, sql } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "@/db";
 import {
@@ -345,3 +345,11 @@ export async function getPage(path: string) {
   const [row] = await db.select().from(pages).where(and(eq(pages.path, path), eq(pages.published, true)));
   return row ?? null;
 }
+
+/** Заголовки и подзаголовки опубликованных страниц для навигации внутри раздела. */
+export const listPagesByPaths = cache(async (paths: string[]) => {
+  return db
+    .select({ path: pages.path, title: pages.title, summary: pages.summary })
+    .from(pages)
+    .where(and(inArray(pages.path, paths), eq(pages.published, true)));
+});

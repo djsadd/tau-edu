@@ -14,6 +14,8 @@
   --color-burgundy-900: #560016;
   --color-burgundy-950: #33000d;
 
+  --color-gold: #ffd500;
+
   --color-ink: #2a1a1e;
   --color-muted: #6e5c61;
   --color-line: #eadfe2;
@@ -78,4 +80,51 @@
   .prose-site { max-width: 72ch; }
   .prose-site img { max-width: 100%; height: auto; }
   .prose-site table { display: block; overflow-x: auto; }
+
+  /* Оформление страниц из обычной разметки редактора: lib/rich-sections.ts */
+  .rich { line-height: 1.7; overflow-wrap: break-word; }
+  .rich > * + *, .rich-card > * + * { margin-top: 1rem; }
+  .rich a { color: var(--color-burgundy-700); text-decoration: underline; text-underline-offset: 3px; }
+  .rich a:hover { color: var(--color-burgundy-950); }
+  .rich h3, .rich h4 { color: var(--color-burgundy-950); line-height: 1.3; }
+  .rich h3 { font-size: 1.25rem; margin-top: 2rem; }
+  .rich h4 { font-size: 1.05rem; margin-top: 1.5rem; }
+  .rich strong, .rich b { color: var(--color-burgundy-950); font-weight: 600; }
+  .rich ul, .rich ol { display: grid; gap: 0.5rem; }
+  .rich ul > li { position: relative; padding-left: 1.5rem; }
+  .rich ul > li::before { content: ""; position: absolute; left: 0.2rem; top: 0.65em; width: 0.45rem; height: 0.45rem; background: var(--color-gold); }
+  .rich ol { counter-reset: step; }
+  .rich ol > li { counter-increment: step; position: relative; min-height: 2rem; padding-left: 2.75rem; padding-top: 0.15rem; }
+  .rich ol > li::before { content: counter(step); position: absolute; left: 0; top: 0; display: flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; background: var(--color-burgundy-700); color: #fff; font-size: 0.875rem; font-weight: 600; }
+  .rich blockquote { border-left: 3px solid var(--color-gold); background: var(--color-burgundy-50); padding: 1rem 1.25rem; }
+  .rich img { max-width: 100%; height: auto; }
+
+  .rich-heading, .rich-section > h2 { position: relative; margin-bottom: 1.25rem; padding-top: 1rem; font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem); line-height: 1.2; color: var(--color-burgundy-950); }
+  .rich-heading::before, .rich-section > h2::before { content: ""; position: absolute; left: 0; top: 0; width: 3rem; height: 3px; background: var(--color-gold); }
+  .rich-section { margin-top: 3.5rem; }
+  .rich-section:first-child { margin-top: 0; }
+
+  .rich-cards { display: grid; gap: 1rem; margin-top: 1.25rem; }
+  @media (min-width: 640px) { .rich-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .rich-card { border: 1px solid var(--color-line); background: #fff; padding: 1.25rem; box-shadow: var(--shadow-card); }
+  .rich-card > h3:first-child { margin-top: 0; }
+
+  .rich-table { overflow-x: auto; border: 1px solid var(--color-line); }
+  .rich-table table { width: 100%; border-collapse: collapse; font-size: 0.875rem; line-height: 1.45; }
+  .rich-table td, .rich-table th { border-bottom: 1px solid var(--color-line); padding: 0.65rem 0.8rem; text-align: left; vertical-align: top; overflow-wrap: normal; }
+  .rich-table tr:first-child > * { background: var(--color-burgundy-900); color: #fff; font-weight: 600; font-family: var(--font-sans); }
+  .rich-table tr:first-child strong { color: inherit; }
+  .rich-table tr:nth-child(odd):not(:first-child) { background: var(--color-burgundy-50); }
+  .rich-table tr:last-child > * { border-bottom: 0; }
+  .rich-table a { white-space: nowrap; }
+
+  .rich-gallery { display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rich-gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+  /* Список во вступлении: ключевые факты карточками, значение выделяется через жирный текст */
+  .rich-intro { margin-bottom: 3rem; }
+  .rich-intro ul { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1rem; }
+  .rich-intro ul > li { padding: 1.1rem 1.25rem; border: 1px solid var(--color-line); border-top: 3px solid var(--color-gold); background: var(--color-burgundy-50); font-size: 0.9375rem; line-height: 1.5; color: var(--color-muted); }
+  .rich-intro ul > li::before { content: none; }
+  .rich-intro ul > li > strong:first-child { display: block; margin-bottom: 0.25rem; font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.25; color: var(--color-burgundy-800); }
 }
