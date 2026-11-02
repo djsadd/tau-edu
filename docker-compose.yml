@@ -1,0 +1,155 @@
+name: tau
+
+x-service: &service
+  restart: unless-stopped
+  init: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  depends_on: &ready
+    db: { condition: service_healthy }
+    migrate: { condition: service_completed_successfully }
+  networks: [mesh, data]
+
+services:
+  gateway:
+    build: ./gateway
+    restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      WEB_UPSTREAM: web:3000
+      TRUSTED_PROXY: ${TRUSTED_PROXY:-127.0.0.1/32}
+    ports:
+      - "${GATEWAY_BIND:-127.0.0.1:3000}:8080"
+    networks: [edge, mesh]
+    depends_on:
+      web: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  web:
+    <<: *service
+    build: { context: ., target: web }
+    environment:
+      DATABASE_URL: postgresql://tau_web:${DB_PASSWORD_WEB:?запустите ./scripts/init-env.sh}@db:5432/tau
+      SESSION_SECRET: ${SESSION_SECRET:?запустите ./scripts/init-env.sh}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?запустите ./scripts/init-env.sh}
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      SEARCH_URL: http://search:4001
+      FILES_URL: http://files:4003
+      ADMISSIONS_URL: http://admissions:4004
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  search:
+    <<: *service
+    build: { context: ., target: service, args: { SERVICE: search } }
+    environment:
+      DATABASE_URL: postgresql://tau_search:${DB_PASSWORD_SEARCH:?запустите ./scripts/init-env.sh}@db:5432/tau
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?запустите ./scripts/init-env.sh}
+      REINDEX_INTERVAL_MINUTES: ${REINDEX_INTERVAL_MINUTES:-10}
+    healthcheck: &health-search
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  assistant:
+    <<: *service
+    build: { context: ., target: service, args: { SERVICE: assistant } }
+    environment:
+      DATABASE_URL: postgresql://tau_assistant:${DB_PASSWORD_ASSISTANT:?запустите ./scripts/init-env.sh}@db:5432/tau
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?запустите ./scripts/init-env.sh}
+      SEARCH_URL: http://search:4001
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ASSISTANT_MODEL: ${ASSISTANT_MODEL:-claude-opus-5-5}
+    # Единственный сервис, которому нужен выход в интернет: к Claude API.
+    networks: [edge, mesh, data]
+    healthcheck:
+      <<: *health-search
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4002/health"]
+
+  files:
+    <<: *service
+    build: { context: ., target: service, args: { SERVICE: files } }
+    environment:
+      DATABASE_URL: postgresql://tau_files:${DB_PASSWORD_FILES:?запустите ./scripts/init-env.sh}@db:5432/tau
+      SESSION_SECRET: ${SESSION_SECRET:?запустите ./scripts/init-env.sh}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?запустите ./scripts/init-env.sh}
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    healthcheck:
+      <<: *health-search
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4003/health"]
+
+  admissions:
+    <<: *service
+    build: { context: ., target: service, args: { SERVICE: admissions } }
+    environment:
+      DATABASE_URL: postgresql://tau_admissions:${DB_PASSWORD_ADMISSIONS:?запустите ./scripts/init-env.sh}@db:5432/tau
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:?запустите ./scripts/init-env.sh}
+    healthcheck:
+      <<: *health-search
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4004/health"]
+
+  # Разовая задача: схема, роли сервисов, первый администратор и демо-контент на пустой базе.
+  migrate:
+    build: { context: ., target: migrate }
+    restart: "no"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    environment:
+      DATABASE_URL: postgresql://tau:${POSTGRES_PASSWORD:?запустите ./scripts/init-env.sh}@db:5432/tau
+      DB_PASSWORD_WEB: ${DB_PASSWORD_WEB:?запустите ./scripts/init-env.sh}
+      DB_PASSWORD_SEARCH: ${DB_PASSWORD_SEARCH:?запустите ./scripts/init-env.sh}
+      DB_PASSWORD_FILES: ${DB_PASSWORD_FILES:?запустите ./scripts/init-env.sh}
+      DB_PASSWORD_ADMISSIONS: ${DB_PASSWORD_ADMISSIONS:?запустите ./scripts/init-env.sh}
+      DB_PASSWORD_ASSISTANT: ${DB_PASSWORD_ASSISTANT:?запустите ./scripts/init-env.sh}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?запустите ./scripts/init-env.sh}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?запустите ./scripts/init-env.sh}
+      UPLOAD_DIR: /data/uploads
+    volumes:
+      - uploads:/data/uploads
+    networks: [data]
+    depends_on:
+      db: { condition: service_healthy }
+
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tau
+      POSTGRES_USER: tau
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?запустите ./scripts/init-env.sh}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=en_US.utf8
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tau -d tau"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+networks:
+  # Опубликованный порт шлюза и выход в интернет.
+  edge:
+  # Вызовы между сервисами. Снаружи недоступна, в интернет не выходит.
+  mesh:
+    internal: true
+  # Только для тех, кому нужна база: шлюз сюда не подключён.
+  data:
+    internal: true
+
+volumes:
+  pgdata:
+  uploads:

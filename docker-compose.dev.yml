@@ -1,0 +1,30 @@
+# Разработка сайта: сервисы и база в контейнерах, Next.js на хосте (npm run dev).
+# Открывайте адрес шлюза, http://localhost:3000: он отправляет страницы на next dev, а /api/* в сервисы.
+services:
+  web:
+    profiles: [container-web]
+
+  gateway:
+    environment:
+      WEB_UPSTREAM: ${DEV_WEB_UPSTREAM:-host.docker.internal:3100}
+    depends_on: !override
+      search: { condition: service_started }
+      assistant: { condition: service_started }
+      files: { condition: service_started }
+      admissions: { condition: service_started }
+
+  db:
+    ports: ["127.0.0.1:5432:5432"]
+    networks: [edge, data]
+
+  search:
+    ports: ["127.0.0.1:4001:4001"]
+    networks: [edge, mesh, data]
+
+  files:
+    ports: ["127.0.0.1:4003:4003"]
+    networks: [edge, mesh, data]
+
+  admissions:
+    ports: ["127.0.0.1:4004:4004"]
+    networks: [edge, mesh, data]
