@@ -31,7 +31,7 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
     <header className="sticky top-0 z-30 bg-white shadow-[0_1px_0_var(--color-line)]">
       <div className="bg-burgundy-900 text-sm text-white">
         <div className="container-page flex h-9 items-center justify-between gap-4">
-          <div className="hidden items-center gap-5 pl-48 sm:flex">
+          <div className="hidden items-center gap-5 sm:flex">
             {config.phone && (
               <a href={`tel:${config.phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-1.5 opacity-90 hover:opacity-100">
                 <Phone className="h-3.5 w-3.5" aria-hidden="true" />{config.phone}
@@ -49,9 +49,8 @@ export async function Header({ locale, dict }: { locale: Locale; dict: Dictionar
         </div>
       </div>
       <div className="container-page flex h-[4.5rem] items-stretch justify-between gap-4">
-        {/* Логотип светлый, поэтому он стоит на бордовой плашке, продолжающей верхнюю полосу */}
-        <Link href={`/${locale}`} aria-label={tr(config.name, locale)} className="-mt-9 flex shrink-0 items-center bg-burgundy-900 px-4 pb-2 pt-3">
-          <Image src={logo} alt="" priority sizes="136px" className="h-auto w-[7.5rem] sm:w-[8.5rem]" />
+        <Link href={`/${locale}`} aria-label={tr(config.name, locale)} className="flex shrink-0 items-center">
+          <Image src={logo} alt="" priority sizes="96px" className="h-12 w-auto" />
         </Link>
         <nav aria-label={dict.common.menu} className="flex items-stretch">
           <DesktopNav items={items} />

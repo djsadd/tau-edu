@@ -1,7 +1,7 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import logo from "@/assets/tau-logo.png";
+import logo from "@/assets/tau-logo-light.png";
 import type { Dictionary } from "@/i18n";
 import type { Locale } from "@/i18n/config";
 import { getMenu, getSiteConfig } from "@/lib/content";
@@ -22,7 +22,7 @@ export async function Footer({ locale, dict }: { locale: Locale; dict: Dictionar
     <footer className="bg-burgundy-950 text-white">
       <div className="container-page grid gap-10 py-14 pb-24 md:grid-cols-2 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
-          <Image src={logo} alt={tr(config.name, locale)} sizes="168px" className="h-auto w-[10.5rem]" />
+          <Image src={logo} alt={tr(config.name, locale)} sizes="112px" className="h-auto w-28" />
           <ul className="mt-6 space-y-2.5 text-sm text-burgundy-100">
             {tr(config.address, locale) && <li className="flex gap-2.5"><MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />{tr(config.address, locale)}</li>}
             {config.phone && <li className="flex gap-2.5"><Phone className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /><a className="hover:underline" href={`tel:${config.phone.replace(/[^\d+]/g, "")}`}>{config.phone}</a></li>}
